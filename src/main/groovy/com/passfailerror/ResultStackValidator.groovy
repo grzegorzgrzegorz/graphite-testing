@@ -28,13 +28,17 @@ class ResultStackValidator {
     boolean resultStackHasStageWithEnvVariable(String stageName, String variableName){
         def result = ResultStackProcessor.getInstance().getResultStack().getInvocationStack().findAll(item->item.stackLine.contains(stageName))
         if(result.size()>0) {
-            resultStackHasEnvVariable(result, variableName)
+            return resultStackHasEnvVariable(result, variableName)
         }
         return false
     }
 
     boolean resultStackHasEnvVariable(List<ResultStack> resultStackList, variableName){
-        return resultStackList
-                .findAll(resultStackEntry -> resultStackEntry.runtimeVariables.containsKey(variableName))
+        def resultList = resultStackList
+                .findAll(resultStackEntry -> resultStackEntry.getRuntimeVariables().get("env").containsKey(variableName))
+        if (resultList.size() > 0){
+            return true
+        }
+        return false
     }
 }
