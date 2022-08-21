@@ -9,7 +9,7 @@ class ResultStackProcessor {
     static getInstance(){return new ResultStackProcessor()}
 
 
-    def storeInvocation(syntaxItem, parameters, runtimeVariables) {
+    void storeInvocation(syntaxItem, parameters, runtimeVariables) {
         def stackLine = createStackLine()
         def syntaxItemInvocation = [:]
         syntaxItemInvocation.put(syntaxItem, parameters);
