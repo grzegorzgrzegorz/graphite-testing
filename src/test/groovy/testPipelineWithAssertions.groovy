@@ -21,16 +21,16 @@ class testPipelineWithAssertions extends GroovyTestCase {
     }
 
     def mockSections(pipelineScript, mockedSections) {
-        mockedSections.each{
+        mockedSections.each {
             section ->
                 def currentSection = section
                 pipelineScript.metaClass."$currentSection" = { Object... params ->
-                    ResultStackProcessor.getInstance().storeInvocation(currentSection, params, pipelineScript.getBinding().getVariables())
                     log.info(currentSection)
                     log.info(params[0]) // steps{closure}
                     if (params.length > 1) {
                         log.info(params[1]) // stage("name"){closure}
                     }
+                    ResultStackProcessor.getInstance().storeInvocation(currentSection, params, pipelineScript.getBinding().getVariables())
                 }
 
         }
@@ -42,8 +42,8 @@ class testPipelineWithAssertions extends GroovyTestCase {
             step ->
                 def currentStep = step
                 pipelineScript.metaClass."$currentStep" = { Object... params ->
-                    ResultStackProcessor.getInstance().storeInvocation(currentStep, params, pipelineScript.getBinding().getVariables())
                     log.info(currentStep + " " + params[0].toString())
+                    ResultStackProcessor.getInstance().storeInvocation(currentStep, params, pipelineScript.getBinding().getVariables())
                 }
         }
     }
@@ -58,6 +58,7 @@ class testPipelineWithAssertions extends GroovyTestCase {
         ResultStackProcessor.setResultStack(new ResultStack())
 
         def binding = new Binding()
+        binding.setProperty("env", [:])
         GroovyShell shell = new GroovyShell(binding)
         pipelineScript = shell.parse(pipelineFile)
         mockJenkins(pipelineScript, steps, sections)
@@ -69,6 +70,7 @@ class testPipelineWithAssertions extends GroovyTestCase {
         ResultStackProcessor.getResultStack().print()
         assert Assertion.stage("First stage").calls("sh")
         assert !Assertion.stage("First stage").hasEnvVariable("test1")
+        assert Assertion.stage("First stage").hasEnvVariable("TEST_GLOBAL_VAR")
     }
 
 }
