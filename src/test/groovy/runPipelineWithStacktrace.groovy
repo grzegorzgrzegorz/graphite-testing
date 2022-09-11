@@ -25,9 +25,11 @@ class runPipelineWithStacktrace extends GroovyTestCase {
                 def currentSection = section
                 pipelineScript.metaClass."$currentSection" = { Object... params ->
                     log.info(currentSection)
-                    log.info(params[0]) // steps{closure}
                     if (params.length > 1) {
-                        log.info(params[1]) // stage("name"){closure}
+                        params[1].call() // stage("name"){closure}
+                    }
+                    else{
+                        params[0].call() // steps{closure}
                     }
                     ResultStackProcessor.getInstance().storeInvocation(currentSection, params, pipelineScript.getBinding().getVariables())
                 }

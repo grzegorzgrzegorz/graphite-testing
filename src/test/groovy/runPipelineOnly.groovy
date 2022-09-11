@@ -10,11 +10,11 @@ class runPipelineOnly extends GroovyTestCase {
     def mockJenkins(pipelineScript) {
         pipelineScript.metaClass.pipeline = { Object... params ->
             log.info("pipeline")
-            log.info(params[0])
+            params[0].call()
         }
         pipelineScript.metaClass.agent = { Object... params ->
             log.info("agent")
-            log.info(params[0])
+            params[0].call()
         }
 
         pipelineScript.metaClass.label = { Object... params ->
@@ -23,17 +23,17 @@ class runPipelineOnly extends GroovyTestCase {
 
         pipelineScript.metaClass.stages = { Object... params ->
             log.info("stages")
-            log.info(params[0])
+            params[0].call()
         }
 
         pipelineScript.metaClass.stage = { Object... params ->
             log.info("stage("+params[0].toString()+")")
-            log.info(params[1])
+            params[1].call()
         }
 
         pipelineScript.metaClass.steps = { Object... params ->
             log.info("steps")
-            log.info(params[0])
+            params[0].call()
         }
 
         pipelineScript.metaClass.echo = { Object... params ->
@@ -48,6 +48,7 @@ class runPipelineOnly extends GroovyTestCase {
     void setUp() {
         def pipelineFile = Paths.get("src/main/groovy/com/passfailerror/simplePipeline.groovy").toFile()
         def binding = new Binding()
+        binding.setProperty("env", [:])
         GroovyShell shell = new GroovyShell(binding)
         pipelineScript = shell.parse(pipelineFile)
         mockJenkins(pipelineScript)

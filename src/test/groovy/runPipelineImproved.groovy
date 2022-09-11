@@ -23,9 +23,11 @@ class runPipelineImproved extends GroovyTestCase {
                 def currentSection = section
                 pipelineScript.metaClass."$currentSection" = { Object... params ->
                     log.info(currentSection)
-                    log.info(params[0]) // steps{closure}
                     if (params.length > 1) {
-                        log.info(params[1]) // stage("name"){closure}
+                        params[1].call() // stage("name"){closure}
+                    }
+                    else{
+                        params[0].call() // steps{closure}
                     }
                 }
 
@@ -49,6 +51,7 @@ class runPipelineImproved extends GroovyTestCase {
         def pipelineFile = pipelinePath.toFile()
 
         def binding = new Binding()
+        binding.setProperty("env", [:])
         GroovyShell shell = new GroovyShell(binding)
         pipelineScript = shell.parse(pipelineFile)
         mockJenkins(pipelineScript, steps, sections)
